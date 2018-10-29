@@ -1,0 +1,3 @@
+1. Assign weights to features so that first features don't weight as much.
+2. Select training data, as not to be biased towards the label that occurs most.
+    - Tried settings weights as class weights for logistic regression and sample weights to fit, didn't work.

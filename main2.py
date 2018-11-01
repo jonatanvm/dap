@@ -11,6 +11,13 @@ df1 = pd.read_csv("./test_data.csv", header=None)
 df2 = pd.read_csv("./train_data.csv", header=None)
 df3 = pd.read_csv("./train_labels.csv", header=None)
 mat = df3.values.flatten()
+
+# df2 = df2.drop(columns=[
+#     71, 72, 88, 89, 90, 91, 92, 93, 94, 95, 216, 217, 218, 219, #23, 47, 119, 143
+# ])
+# df1 = df1.drop(columns=[
+#     71, 72, 88, 89, 90, 91, 92, 93, 94, 95, 216, 217, 218, 219, #23, 47, 119, 143
+# ])
 print(mat)
 
 
@@ -33,7 +40,7 @@ y = df3.values
 # X = quantile_transformer.fit_transform(X)
 
 def test_rythm(data):
-    for i in range(6,7):
+    for i in range(1,2):
         print(i)
         labels = data.loc[:, i * 24:(i + 1) * 24 - 1].columns
         print(labels)
@@ -129,27 +136,26 @@ def plot_scores(X, scores, lab_pos):
 # 3
 # drop(241)
 # drop(243)
-drop(216)
-drop(217)
-drop(218)
-drop(219)
+# drop(216)
+# drop(217)
+# drop(218)
+# drop(219)
 
 # drop(228)
 # drop(239)#
 # drop(240)
 # drop(252)
 
-drop(23)
-drop(47)
-drop(71)
-drop(72)
-drop(92)
-drop(93)
-drop(94)
-drop(95)
-drop(119)
-drop(143)
-# drop(167)
+# drop(23)
+# drop(47)
+# drop(71)
+# drop(72)
+# drop(92)
+# drop(93)
+# drop(94)
+# drop(95)
+# drop(119)
+# drop(143)
 
 
 

@@ -1,16 +1,11 @@
 from sklearn.decomposition import PCA
-from sklearn.cross_decomposition import PLSRegression
 from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy import linalg
 import pandas as pd
-from sklearn.cross_decomposition import PLSRegression
-from sklearn.metrics import mean_squared_error
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
-from sklearn.metrics import classification_report, log_loss
 
 df1 = pd.read_csv("./test_data.csv", header=None)
 df2 = pd.read_csv("./train_data.csv", header=None)
@@ -26,10 +21,10 @@ y_best = df4['Sample_label'].values
 # good predictors
 # 228,229, 255
 df2 = df2.drop(columns=[
-    71, 72, 88, 89, 90, 91, 92, 93, 94, 95, 216, 217, 218, 219, #23, 47, 119, 143
+    71, 72, 88, 89, 90, 91, 92, 93, 94, 95, 216, 217, 218, 219, 23, 47, 119, 143
 ])
 df1 = df1.drop(columns=[
-    71, 72, 88, 89, 90, 91, 92, 93, 94, 95, 216, 217, 218, 219, #23, 47, 119, 143
+    71, 72, 88, 89, 90, 91, 92, 93, 94, 95, 216, 217, 218, 219, 23, 47, 119, 143
 ])
 
 
@@ -129,11 +124,11 @@ poly = preprocessing.PolynomialFeatures(2)
 # df2 = (df2 - df2.mean()) / (df2.max() - df2.min())
 # df1 = (df1 - df1.mean()) / (df1.max() - df1.min())
 
-X = df2.values #get_best_features(df2, y)
-X_t = df1.values #get_best_features(df1, y)
-quantile_transformer.fit(X) # best, not best for logloss
-X = quantile_transformer.transform(X) # best, not best for logloss
-X_t = quantile_transformer.transform(X_t) # best, not best for logloss
+X = get_best_features(df2, y)
+X_t = get_best_features(df1, y)
+# quantile_transformer.fit(X) # best
+# X = quantile_transformer.transform(X) # best
+# X_t = quantile_transformer.transform(X_t) # best
 
 # rythm_data = X[:, 0:168]
 # chroma_data = X[:, 168:168 + 48]
@@ -171,11 +166,10 @@ def pred(X, y, state):
     lg.fit(X_train, y_train.flatten())
     y_pred = lg.predict(X_test)
     print(lg.score(X_test, y_test))
-    # print(classification_report(y_test, y_pred))
     return y_pred, lg.score(X_test, y_test)
 
 
-def testInner():
+def crossValidation(X, y):
     accs = []
     for i in range(10):
         ys, ac = pred(X, y, i)
@@ -184,7 +178,7 @@ def testInner():
 
 
 def predf(X_train, y_train, X_test):
-    lg = LogisticRegression(solver='newton-cg', multi_class='multinomial', max_iter=5000, tol=1e-6)
+    lg = LogisticRegression(solver='lbfgs', multi_class='ovr', max_iter=5000, tol=1e-6)
     lg.fit(X_train, y_train.flatten())
     y_pred = lg.predict(X_test)
     return y_pred
@@ -193,12 +187,15 @@ def predf(X_train, y_train, X_test):
 def predf2(X_train, y_train, X_test, y_test):
     # lg = LogisticRegression(random_state=0, solver='lbfgs', multi_class='ovr', max_iter=1000, tol=1e-6) #best
     # lg = LogisticRegression(random_state=0, solver='lbfgs', multi_class='multinomial', max_iter=10000, tol=1e-6, n_jobs=10) # best loss
-    lg = LogisticRegression(random_state=0, solver='lbfgs', multi_class='ovr', max_iter=10000, tol=1e-6, n_jobs=10)
-    print(lg)
-    lg.fit(X_train, y_train.flatten())
-    y_pred = lg.predict(X_test)
-    prob = lg.predict_proba(X_test)
-    print(lg.score(X_test, y_test))
+    # lg = LogisticRegression(random_state=0, solver='lbfgs', multi_class='ovr', max_iter=10000, tol=1e-6, n_jobs=10)
+    from sklearn.ensemble import RandomForestClassifier #Test
+    from sklearn.neural_network import MLPClassifier
+    clf = MLPClassifier(alpha=1)
+    print(clf)
+    clf.fit(X_train, y_train.flatten())
+    y_pred = clf.predict(X_test)
+    prob = clf.predict_proba(X_test)
+    print(clf.score(X_test, y_test))
     return y_pred, prob
 
 
@@ -226,5 +223,5 @@ def out(X_train, y, X_test, y_best):
     dataframe.to_csv('out.csv', index=False)
     print("Wrote out.csv")
 
-
+crossValidation(X,y)
 out(X, y, X_t, y_best)

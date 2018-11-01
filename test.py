@@ -6,12 +6,13 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
+from sklearn.neural_network import MLPClassifier
 
 df1 = pd.read_csv("./test_data.csv", header=None)
 df2 = pd.read_csv("./train_data.csv", header=None)
 df3 = pd.read_csv("./train_labels.csv", header=None)
 df4 = pd.read_csv("./best.csv")
-y = df3.values
+
 y_best = df4['Sample_label'].values
 
 # 72,82,83,84,85,86,87,88,89,
@@ -20,12 +21,22 @@ y_best = df4['Sample_label'].values
 
 # good predictors
 # 228,229, 255
+
+#23, 47, 119, 143
 df2 = df2.drop(columns=[
-    71, 72, 88, 89, 90, 91, 92, 93, 94, 95, 216, 217, 218, 219, 23, 47, 119, 143
+    71, 72, 88, 89, 90, 91, 92, 93, 94, 95, 216, 217, 218, 219,
 ])
 df1 = df1.drop(columns=[
-    71, 72, 88, 89, 90, 91, 92, 93, 94, 95, 216, 217, 218, 219, 23, 47, 119, 143
+    71, 72, 88, 89, 90, 91, 92, 93, 94, 95, 216, 217, 218, 219,
 ])
+
+
+df2 = df2.drop([1558, 3820, 3411, 1842, 239, 4308, 3008, 3119, 1763, 4296, 3423, 1073, 3650])
+df3 = df3.drop([1558, 3820, 3411, 1842, 239, 4308, 3008, 3119, 1763, 4296, 3423, 1073, 3650])
+
+y = df3.values
+# for i, x in enumerate(y.T[0]):
+#     print("{0}: {1}".format(i, x))
 
 
 def get_scores(X_train, y_train, n_comp=3):
@@ -44,74 +55,19 @@ def get_best_features(df, y):
     print("start")
     for i in range(1, 7):
         df = rythm_data.loc[:, i * 24:(i + 1) * 24 - 1]
-        score_matrix = np.hstack((score_matrix, (get_scores(df.values, y, 2))))
+        score_matrix = np.hstack((score_matrix, (get_scores(df.values, y, 10))))
     print("start")
     for i in range(4):
         df = chroma_data.loc[:, 168 + i * 12: 168 + (i + 1) * 12 - 1]
-        score_matrix = np.hstack((score_matrix, (get_scores(df.values, y, 2))))
+        score_matrix = np.hstack((score_matrix, (get_scores(df.values, y, 8))))
     print("start")
     for i in range(4):
         df = mfcc_data.loc[:, 168 + 48 + i * 12:168 + 48 + (i + 1) * 12 - 1]
-        score_matrix = np.hstack((score_matrix, (get_scores(df.values, y, 2))))
+        score_matrix = np.hstack((score_matrix, (get_scores(df.values, y, 8))))
     print("end")
 
     return score_matrix
 
-
-
-# df2 = df2.drop(columns=[
-#     94, 95, 216, 217, 218, 219
-# ])
-# df1 = df1.drop(columns=[
-#     94, 95, 216, 217, 218, 219
-# ])
-
-
-def drop(num):
-    return df1.drop(columns=[num], inplace=True), df2.drop(columns=[num], inplace=True)
-
-
-def dropRange(list):
-    for i in list:
-        df1.drop(columns=[i], inplace=True), df2.drop(columns=[i], inplace=True)
-
-
-# dropRange(range(203, 216))
-
-
-# df2 = df2.drop(columns=[168 + 48 + 13])
-# df1 = df1.drop(columns=[168 + 48 + 13])
-
-# # # chroma
-# for i in range(11):
-#     df1 = df1.drop(columns=[168+i])
-#     df2 = df2.drop(columns=[168+i])
-
-
-# for i in range(2):
-#     df2 = df2.drop(columns=[168+48+13+i])
-#     df1 = df1.drop(columns=[168+48+13+i])
-def drop(num):
-    return df1.drop(columns=[num]), df2.drop(columns=[num])
-
-
-def scale(X):
-    """
-    VERY POOR PERFORMANCE
-    :param X:
-    :return:
-    """
-    rythm_data = X[:, 0:168]
-    chroma_data = X[:, 168:168 + 48]
-    mfcc_data = X[:, 168 + 48:]
-
-    rythm_data = max_abs_scaler.fit_transform(rythm_data)
-    mfcc_data = min_max_scaler.fit_transform(mfcc_data)
-
-    return np.concatenate((rythm_data, chroma_data, mfcc_data), axis=1)
-
-
-# df1, df2 = drop(95)
 
 min_max_scaler = preprocessing.MinMaxScaler()
 normalizer_scaler = preprocessing.Normalizer()
@@ -124,12 +80,13 @@ poly = preprocessing.PolynomialFeatures(2)
 # df2 = (df2 - df2.mean()) / (df2.max() - df2.min())
 # df1 = (df1 - df1.mean()) / (df1.max() - df1.min())
 
-X = get_best_features(df2, y)
-X_t = get_best_features(df1, y)
-# quantile_transformer.fit(X) # best
-# X = quantile_transformer.transform(X) # best
-# X_t = quantile_transformer.transform(X_t) # best
+X = df2.values  # get_best_features(df2, y)
+X_t = df1.values  # get_best_features(df1, y)
 
+quantile_transformer.fit(X)  # best
+X = quantile_transformer.transform(X)  # best
+X_t = quantile_transformer.transform(X_t)  # best
+#
 # rythm_data = X[:, 0:168]
 # chroma_data = X[:, 168:168 + 48]
 # mfcc_data = X[:, 168 + 48:]
@@ -145,9 +102,12 @@ X_t = get_best_features(df1, y)
 # w = [1]*len(y)
 #
 # print(len(y))
-# import collections
-# amounts = collections.Counter(y.flatten())
-# print(amounts)
+import collections
+
+amounts = collections.Counter(y.flatten())
+print(amounts)
+
+
 # for i in range(len(y)):
 #     w[i] = 1 - amounts.get(y.flatten()[i])/len(y)
 # cw = {
@@ -162,16 +122,14 @@ X_t = get_best_features(df1, y)
 
 def pred(X, y, state):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=state)
-    lg = LogisticRegression(random_state=0, solver='newton-cg', multi_class='multinomial', max_iter=5000, tol=1e-6)
-    lg.fit(X_train, y_train.flatten())
-    y_pred = lg.predict(X_test)
-    print(lg.score(X_test, y_test))
-    return y_pred, lg.score(X_test, y_test)
+    y_pred, score, prob = classifier(X_train, y_train, X_test, y_test)
+    print("Prediction score {0}: {1:.3}".format(state, score))
+    return y_pred, score
 
 
-def crossValidation(X, y):
+def crossValidation(X, y, runs=3):
     accs = []
-    for i in range(10):
+    for i in range(runs):
         ys, ac = pred(X, y, i)
         accs.append(ac)
     print("mean score: " + str(np.mean(accs)))
@@ -184,18 +142,22 @@ def predf(X_train, y_train, X_test):
     return y_pred
 
 
-def predf2(X_train, y_train, X_test, y_test):
-    # lg = LogisticRegression(random_state=0, solver='lbfgs', multi_class='ovr', max_iter=1000, tol=1e-6) #best
-    # lg = LogisticRegression(random_state=0, solver='lbfgs', multi_class='multinomial', max_iter=10000, tol=1e-6, n_jobs=10) # best loss
-    # lg = LogisticRegression(random_state=0, solver='lbfgs', multi_class='ovr', max_iter=10000, tol=1e-6, n_jobs=10)
-    from sklearn.ensemble import RandomForestClassifier #Test
-    from sklearn.neural_network import MLPClassifier
-    clf = MLPClassifier(alpha=1)
-    print(clf)
+def classifier(X_train, y_train, X_test, y_test, state=0):
+    # clf = LogisticRegression(random_state=0, solver='lbfgs', multi_class='ovr', max_iter=1000, tol=1e-6) #best
+    # clf = LogisticRegression(random_state=0, solver='lbfgs', multi_class='multinomial', max_iter=10000, tol=1e-6, n_jobs=10) # best loss
+    # clf = LogisticRegression(random_state=0, solver='lbfgs', multi_class='ovr', max_iter=10000, tol=1e-6, n_jobs=10)
+    # clf = MLPClassifier(alpha=1)
+    clf = MLPClassifier(alpha=1, random_state=state)
     clf.fit(X_train, y_train.flatten())
     y_pred = clf.predict(X_test)
     prob = clf.predict_proba(X_test)
-    print(clf.score(X_test, y_test))
+    score = clf.score(X_test, y_test)
+    return y_pred, score, prob
+
+
+def classify(X_train, y_train, X_test, y_test):
+    y_pred, score, prob = classifier(X_train, y_train, X_test, y_test)
+    print("Accuracy compared to best prediction: {0}".format(score))
     return y_pred, prob
 
 
@@ -210,7 +172,7 @@ def predf2(X_train, y_train, X_test, y_test):
 
 
 def out(X_train, y, X_test, y_best):
-    prediction, prob = predf2(X_train, y, X_test, y_best)
+    prediction, prob = classify(X_train, y, X_test, y_best)
     probs = pd.DataFrame(data=prob)
     probs.columns = ['Class_1', 'Class_2', 'Class_3', 'Class_4', 'Class_5', 'Class_6', 'Class_7',
                      'Class_8', 'Class_9', 'Class_10', ]
@@ -223,5 +185,6 @@ def out(X_train, y, X_test, y_best):
     dataframe.to_csv('out.csv', index=False)
     print("Wrote out.csv")
 
-crossValidation(X,y)
+
+crossValidation(X, y, 10)
 out(X, y, X_t, y_best)

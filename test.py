@@ -21,16 +21,21 @@ y_best = df4['Sample_label'].values
 
 # good predictors
 # 228,229, 255
-
+print(df2[[216, 217, 218, 219]])
 #23, 47, 119, 143
 df2 = df2.drop(columns=[
-    71, 72, 88, 89, 90, 91, 92, 93, 94, 95, 216, 217, 218, 219,
+    71, 72, 88, 89, 90, 91, 92, 93, 94, 95, 216, 217, 218, 219, 23, 47, 119, 143
 ])
 df1 = df1.drop(columns=[
-    71, 72, 88, 89, 90, 91, 92, 93, 94, 95, 216, 217, 218, 219,
+    71, 72, 88, 89, 90, 91, 92, 93, 94, 95, 216, 217, 218, 219, 23, 47, 119, 143
 ])
 
-
+# df2 = df2.drop([1558, 3820, 3411 , 2545,1763,4217, 1842, 239,3650,3442, 4308, 3008, 3119, 1763, 4296, 3423, 1073,285,
+# 3426,3820,3880, 2284,1544,758,2492,2865,2833,2078,3449,2890,2830
+# ])
+# df3 = df3.drop([1558, 3820, 3411 , 2545,1763,4217, 1842, 239,3650,3442, 4308, 3008, 3119, 1763, 4296, 3423, 1073,285,
+# 3426,3820,3880, 2284,1544,758,2492,2865,2833,2078,3449,2890,2830
+# ])
 df2 = df2.drop([1558, 3820, 3411, 1842, 239, 4308, 3008, 3119, 1763, 4296, 3423, 1073, 3650])
 df3 = df3.drop([1558, 3820, 3411, 1842, 239, 4308, 3008, 3119, 1763, 4296, 3423, 1073, 3650])
 
@@ -143,11 +148,11 @@ def predf(X_train, y_train, X_test):
 
 
 def classifier(X_train, y_train, X_test, y_test, state=0):
-    # clf = LogisticRegression(random_state=0, solver='lbfgs', multi_class='ovr', max_iter=1000, tol=1e-6) #best
-    # clf = LogisticRegression(random_state=0, solver='lbfgs', multi_class='multinomial', max_iter=10000, tol=1e-6, n_jobs=10) # best loss
+    # clf = LogisticRegression(solver='lbfgs', multi_class='ovr', max_iter=1000, tol=1e-6) #best
+    clf = LogisticRegression(random_state=0, solver='lbfgs', multi_class='multinomial', max_iter=10000, tol=1e-6, n_jobs=10) # best loss
     # clf = LogisticRegression(random_state=0, solver='lbfgs', multi_class='ovr', max_iter=10000, tol=1e-6, n_jobs=10)
     # clf = MLPClassifier(alpha=1)
-    clf = MLPClassifier(alpha=1, random_state=state)
+    # clf = MLPClassifier(alpha=1)
     clf.fit(X_train, y_train.flatten())
     y_pred = clf.predict(X_test)
     prob = clf.predict_proba(X_test)
@@ -186,5 +191,5 @@ def out(X_train, y, X_test, y_best):
     print("Wrote out.csv")
 
 
-crossValidation(X, y, 10)
+# crossValidation(X, y, 20)
 out(X, y, X_t, y_best)

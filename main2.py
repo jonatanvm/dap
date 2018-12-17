@@ -20,7 +20,9 @@ mat = df3.values.flatten()
 # ])
 
 
-# df2 = df2.drop([1558, 3820, 3411, 1842, 239, 4308, 3008, 3119, 1763, 4296, 3423, 1073, 3650])
+# df2 = df2.drop([1558, 3820, 3411 , 2545,1763,4217, 1842, 239,3650,3442, 4308, 3008, 3119, 1763, 4296, 3423, 1073,285,
+# 3426,3820,3880, 2284,1544,758,2492,2865,2833,2078,3449,2890,2830
+# ])
 print(mat)
 
 
@@ -43,7 +45,7 @@ y = df3.values
 # X = quantile_transformer.fit_transform(X)
 
 def test_rythm(data):
-    for i in range(6,7):
+    for i in range(0,1):
         print(i)
         labels = data.loc[:, i * 24:(i + 1) * 24 - 1].columns
         # print(labels)
@@ -114,22 +116,28 @@ def plot_scores(X, scores, lab_pos):
     ax = axes[0]
     print(scores.shape)
     print(X.shape)
+    ax.set_xlabel('1st PC', fontsize=10)
+    ax.set_ylabel('2nd PC', fontsize=10)
     ax.scatter(scores[0], scores[1])
     for i in range(X.shape[0]):
-        ax.annotate(str(lab_pos[i]), (scores[0][i], scores[1][i]))
+        ax.annotate(str(lab_pos[i]), (scores[0][i], scores[1][i]), fontsize=8)
 
     ax = axes[1]
     ax.scatter(scores[1], scores[2])
+    ax.set_xlabel('2nd PC', fontsize=10)
+    ax.set_ylabel('3rd PC', fontsize=10)
 
     for i in range(X.shape[0]):
-        ax.annotate(lab_pos[i], (scores[1][i], scores[2][i]))
+        ax.annotate(lab_pos[i], (scores[1][i], scores[2][i]), fontsize=8)
 
 
 
-fig, axes = plt.subplots(1, 2)
+fig, ax = plt.subplots(figsize=(15,8))
 scores, loading = run_pca(X)
-ax = axes[0]
 ax.scatter(scores[0],scores[1])
+ax.set_xlabel('1st PC', fontsize=10)
+ax.set_ylabel('2nd PC', fontsize=10)
+ax.set_title('2nd PC', fontsize=10)
 for i in range(X.shape[0]):
     ax.annotate(str(i), (scores[0][i], scores[1][i]))
 
